@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tạo đơn nhanh chóng</title>
+<style>
+:root{--bg:#f4f8ff;--card:#fff;--tx:#1f2a44;--mut:#6b7794;--pri:#4f8cff;--pri2:#e8f0ff;--bd:#dbe5f7;--ok:#22a06b;--okbg:#e4f7ee;--wait:#d98a00;--waitbg:#fff4dc;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#141a2b;--card:#1d2540;--tx:#e8edfa;--mut:#9aa6c4;--pri2:#26335a;--bd:#2f3b63;--okbg:#17352a;--waitbg:#3a2f12}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;min-height:100vh}
+.wrap{max-width:560px;margin:0 auto;padding:16px}
+h1{text-align:center;font-size:1.5rem;margin:8px 0 14px;color:var(--pri)}
+.tabs{display:flex;gap:8px;background:var(--pri2);padding:5px;border-radius:14px;margin-bottom:14px}
+.tabs button{flex:1;border:0;padding:10px;border-radius:10px;background:transparent;color:var(--mut);font-weight:600;font-size:.95rem;cursor:pointer}
+.tabs button.on{background:var(--card);color:var(--pri);box-shadow:0 1px 4px rgba(79,140,255,.25)}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:16px;margin-bottom:14px}
+label{display:block;font-size:.82rem;color:var(--mut);margin:10px 0 4px;font-weight:600}
+input,textarea{width:100%;padding:10px 12px;border:1px solid var(--bd);border-radius:10px;background:var(--bg);color:var(--tx);font:inherit}
+input:focus,textarea:focus{outline:2px solid var(--pri);border-color:transparent}
+input[readonly]{background:var(--pri2);color:var(--pri);font-weight:600}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn{width:100%;margin-top:16px;padding:13px;border:0;border-radius:12px;background:var(--pri);color:#fff;font-size:1rem;font-weight:700;cursor:pointer}
+.btn.ok{background:var(--ok)}
+.ticket{border:2px dashed var(--pri);border-radius:16px;padding:16px;background:var(--card)}
+.ticket h2{margin:0 0 2px;text-align:center;color:var(--pri);font-size:1.1rem}
+.ticket .code{text-align:center;color:var(--mut);font-size:.85rem;margin-bottom:10px}
+.ln{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--bd);font-size:.92rem}
+.ln span:first-child{color:var(--mut);flex:none}
+.ln span:last-child{text-align:right;font-weight:600;word-break:break-word}
+.tot{display:flex;justify-content:space-between;margin-top:12px;font-size:1.1rem;font-weight:800}
+.tot b{color:var(--pri)}
+.item{cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.item:active{background:var(--pri2)}
+.item small{color:var(--mut);display:block}
+.tag{font-size:.75rem;padding:4px 10px;border-radius:99px;font-weight:700;white-space:nowrap}
+.tag.w{background:var(--waitbg);color:var(--wait)}.tag.d{background:var(--okbg);color:var(--ok)}
+.empty{text-align:center;color:var(--mut);padding:30px 0}
+.modal{position:fixed;inset:0;background:rgba(20,30,60,.5);display:none;align-items:center;justify-content:center;padding:16px;z-index:5}
+.modal.show{display:flex}
+.box{background:var(--card);border-radius:18px;padding:18px;width:100%;max-width:440px;max-height:90vh;overflow:auto}
+.success{text-align:center;padding:10px 0}
+.success .ic{width:68px;height:68px;border-radius:50%;background:var(--okbg);color:var(--ok);font-size:2.2rem;display:flex;align-items:center;justify-content:center;margin:0 auto 10px}
+.link{background:none;border:0;color:var(--mut);margin-top:10px;width:100%;cursor:pointer;font:inherit}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>📦 Tạo đơn nhanh chóng</h1>
+  <div class="tabs">
+    <button id="t1" class="on" onclick="tab(1)">Tạo đơn</button>
+    <button id="t2" onclick="tab(2)">Lịch sử đơn (<span id="cnt">0</span>)</button>
+  </div>
+
+  <section id="p1">
+    <div class="card">
+      <div class="row">
+        <div><label>Tên người nhận</label><input id="rn" placeholder="Nguyễn Văn A"></div>
+        <div><label>Tên người gửi</label><input id="sn" placeholder="Trần Thị B"></div>
+      </div>
+      <div class="row">
+        <div><label>SĐT người nhận</label><input id="rp" type="tel" inputmode="tel" placeholder="09xxxxxxxx"></div>
+        <div><label>SĐT người gửi</label><input id="sp" type="tel" inputmode="tel" placeholder="09xxxxxxxx"></div>
+      </div>
+      <label>Địa chỉ người gửi</label><input id="sa" placeholder="Số nhà, đường, quận/huyện, tỉnh/thành">
+      <div class="row">
+        <div><label>Ngày tạo đơn (thời gian thực)</label><input id="d1" readonly></div>
+        <div><label>Ngày nhận đơn (+3 ngày)</label><input id="d2" readonly></div>
+      </div>
+      <label>Thông tin đơn hàng</label><textarea id="info" rows="2" placeholder="Ví dụ: 2 áo thun, 1 quần jean"></textarea>
+      <label>Giá tiền (VNĐ)</label><input id="price" type="number" inputmode="numeric" min="0" placeholder="250000">
+      <button class="btn" onclick="create()">Bắt đầu tạo đơn</button>
+    </div>
+    <div id="result"></div>
+  </section>
+
+  <section id="p2" style="display:none"><div id="list"></div></section>
+</div>
+
+<div class="modal" id="modal"><div class="box" id="mbox"></div></div>
+
+<script>
+var orders=[];
+try{orders=JSON.parse(localStorage.getItem("orders")||"[]")}catch(e){}
+function save(){try{localStorage.setItem("orders",JSON.stringify(orders))}catch(e){}}
+function $(i){return document.getElementById(i)}
+function pad(n){return String(n).padStart(2,"0")}
+function fmt(d){return pad(d.getDate())+"/"+pad(d.getMonth()+1)+"/"+d.getFullYear()+" "+pad(d.getHours())+":"+pad(d.getMinutes())+":"+pad(d.getSeconds())}
+function fmtD(d){return pad(d.getDate())+"/"+pad(d.getMonth()+1)+"/"+d.getFullYear()}
+function money(n){return Number(n).toLocaleString("vi-VN")+" đ"}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function tick(){var n=new Date(),r=new Date(n.getTime()+3*864e5);$("d1").value=fmt(n);$("d2").value=fmtD(r)}
+setInterval(tick,1000);tick();
+
+function tab(n){
+  $("p1").style.display=n==1?"":"none";$("p2").style.display=n==2?"":"none";
+  $("t1").className=n==1?"on":"";$("t2").className=n==2?"on":"";
+  if(n==2)renderList();
+}
+function ticket(o){
+  return '<div class="ticket"><h2>PHIẾU ĐƠN HÀNG</h2><div class="code">Mã đơn: '+o.id+'</div>'+
+  [["Người nhận",o.rn],["SĐT người nhận",o.rp],["Người gửi",o.sn],["SĐT người gửi",o.sp],["Địa chỉ người gửi",o.sa],["Ngày tạo đơn",o.d1],["Ngày nhận đơn",o.d2],["Thông tin đơn hàng",o.info],["Trạng thái",o.done?"✅ Đã nhận":"⏳ Chưa nhận"]]
+  .map(function(r){return '<div class="ln"><span>'+r[0]+'</span><span>'+esc(r[1])+'</span></div>'}).join("")+
+  '<div class="tot"><span>Tổng tiền</span><b>'+money(o.price)+'</b></div></div>';
+}
+function create(){
+  var f={rn:$("rn").value.trim(),sn:$("sn").value.trim(),rp:$("rp").value.trim(),sp:$("sp").value.trim(),sa:$("sa").value.trim(),info:$("info").value.trim(),price:$("price").value};
+  for(var k in f){if(!f[k]){alert("Vui lòng nhập đầy đủ thông tin đơn hàng");return}}
+  var n=new Date(),r=new Date(n.getTime()+3*864e5);
+  f.id="DH"+n.getTime().toString().slice(-8);f.d1=fmt(n);f.d2=fmtD(r);f.done=false;
+  orders.unshift(f);save();
+  $("result").innerHTML='<div class="card" style="padding:12px">'+ticket(f)+'</div>';
+  $("result").scrollIntoView({behavior:"smooth"});
+  ["rn","sn","rp","sp","sa","info","price"].forEach(function(i){$(i).value=""});
+  $("cnt").textContent=orders.length;
+}
+function renderList(){
+  $("cnt").textContent=orders.length;
+  $("list").innerHTML=orders.length?orders.map(function(o,i){
+    return '<div class="card item" onclick="openO('+i+')"><div><b>'+esc(o.rn)+'</b><small>'+o.id+' · '+o.d1+'</small><small>'+money(o.price)+'</small></div><span class="tag '+(o.done?'d':'w')+'">'+(o.done?'Đã nhận':'Chờ nhận')+'</span></div>'
+  }).join(""):'<div class="empty">Chưa có đơn nào được tạo</div>';
+}
+function openO(i){
+  var o=orders[i];
+  $("mbox").innerHTML=ticket(o)+(o.done?'':'<button class="btn ok" onclick="confirmO('+i+')">Xác nhận đã nhận đơn</button>')+'<button class="link" onclick="closeM()">Đóng</button>';
+  $("modal").className="modal show";
+}
+function confirmO(i){
+  orders[i].done=true;save();
+  $("mbox").innerHTML='<div class="success"><div class="ic">✓</div><h2 style="margin:0 0 6px">Thành công!</h2><p style="color:var(--mut);margin:0">Đơn '+orders[i].id+' đã được xác nhận nhận hàng. Oke!</p></div><button class="btn" onclick="closeM()">Đóng</button>';
+  renderList();
+}
+function closeM(){$("modal").className="modal"}
+$("modal").addEventListener("click",function(e){if(e.target===this)closeM()});
+renderList();
+</script>
+</body>
+</html>
